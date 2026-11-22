@@ -12,9 +12,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          three: ['three'],
           motion: ['framer-motion'],
-          vendor: ['canvas-confetti', 'lucide-react', 'gsap'],
+          vendor: ['canvas-confetti', 'lucide-react'],
         },
       },
     },

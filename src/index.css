@@ -1,141 +1,105 @@
+@import './styles/animations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #030106;
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  background-color: #FFF6E9;
+  color: #2D1810;
+  font-family: 'Poppins', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Sleek Scrollbar */
+/* Custom Romantic Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 9px;
 }
 ::-webkit-scrollbar-track {
-  background: #030106;
+  background: #FFF6E9;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #ff2a85, #bd00ff, #ffd700);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #B5122A, #8C1023, #D8A657);
+  border-radius: 6px;
+  border: 2px solid #FFF6E9;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ff1493, #d4af37);
+  background: #9B0F23;
 }
 
-/* Glassmorphism Classes */
-.glass-panel {
-  background: rgba(15, 6, 23, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 42, 133, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+/* Vintage Cute Heart Pattern Background */
+.bg-heart-pattern {
+  background-color: #FFF6E9;
+  background-image: radial-gradient(#B5122A 0.75px, transparent 0.75px), radial-gradient(#F8D8E0 0.75px, #FFF6E9 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
 }
 
-.glass-panel-gold {
-  background: rgba(18, 12, 5, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 215, 0, 0.22);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+.bg-red-pattern {
+  background-color: #B5122A;
+  background-image: radial-gradient(rgba(255, 246, 233, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-.glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+/* Polaroid Photo Card styling */
+.polaroid-card {
+  background: #FFFFFF;
+  padding: 12px 12px 28px 12px;
+  box-shadow: 0 10px 25px -5px rgba(140, 16, 35, 0.15), 0 8px 10px -6px rgba(140, 16, 35, 0.1);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: 1px solid rgba(140, 16, 35, 0.08);
 }
 
-.glass-card:hover {
-  border-color: rgba(255, 42, 133, 0.4);
-  box-shadow: 0 12px 40px -10px rgba(255, 42, 133, 0.3);
+.polaroid-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 20px 35px -5px rgba(181, 18, 42, 0.25), 0 10px 15px -5px rgba(181, 18, 42, 0.15);
+  border-color: rgba(181, 18, 42, 0.3);
 }
 
-/* Glow Typography & Shimmers */
-.glow-text-pink {
-  text-shadow: 0 0 10px rgba(255, 42, 133, 0.8),
-               0 0 25px rgba(255, 42, 133, 0.5),
-               0 0 50px rgba(255, 42, 133, 0.3);
-}
-
-.glow-text-gold {
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
-               0 0 25px rgba(212, 175, 55, 0.5),
-               0 0 50px rgba(212, 175, 55, 0.3);
-}
-
-.metallic-gold-text {
-  background: linear-gradient(135deg, #fff7d6 0%, #ffd700 35%, #d4af37 60%, #fff7d6 85%, #b38728 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.metallic-rose-text {
-  background: linear-gradient(135deg, #ffffff 0%, #ffb3c1 30%, #ff2a85 60%, #ff758c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.cosmic-gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #ff9ebb 25%, #ff2a85 50%, #bd00ff 75%, #ffd700 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Cinematic Fog Overlay */
-.cinematic-fog {
+/* Washi Tape Accent */
+.washi-tape {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at 50% 50%, rgba(255, 42, 133, 0.08) 0%, rgba(138, 43, 226, 0.04) 40%, rgba(3, 1, 6, 0.95) 85%);
-  pointer-events: none;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1.5deg);
+  width: 90px;
+  height: 24px;
+  background: rgba(248, 216, 224, 0.85);
+  border-left: 2px dashed rgba(181, 18, 42, 0.3);
+  border-right: 2px dashed rgba(181, 18, 42, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 10;
 }
 
-/* ECG Heartbeat Line Animation */
-@keyframes ecgPulse {
-  0% {
-    stroke-dashoffset: 1000;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
+.washi-tape-gold {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+  width: 80px;
+  height: 22px;
+  background: rgba(216, 166, 87, 0.7);
+  border-left: 2px dashed rgba(140, 16, 35, 0.2);
+  border-right: 2px dashed rgba(140, 16, 35, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 10;
 }
 
-.ecg-path {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: ecgPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+/* Vintage Paper & Filigree Borders */
+.vintage-border {
+  border: 2px solid #B5122A;
+  outline: 2px solid #D8A657;
+  outline-offset: 4px;
 }
 
-/* Shimmer Sweep */
-.shimmer-sweep {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmerSweep 3s infinite;
-}
-
-@keyframes shimmerSweep {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Smooth Perspective 3D */
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-.perspective-1000 {
-  perspective: 1000px;
+.gold-filigree-border {
+  border: 2px solid #D8A657;
+  box-shadow: inset 0 0 0 3px #FFF6E9, inset 0 0 0 5px #B5122A;
 }
