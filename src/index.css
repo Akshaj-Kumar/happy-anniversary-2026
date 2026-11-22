@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #030106;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #030106;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff2a85, #bd00ff, #ffd700);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff1493, #d4af37);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(15, 6, 23, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 42, 133, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+}
+
+.glass-panel-gold {
+  background: rgba(18, 12, 5, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 42, 133, 0.4);
+  box-shadow: 0 12px 40px -10px rgba(255, 42, 133, 0.3);
+}
+
+/* Glow Typography & Shimmers */
+.glow-text-pink {
+  text-shadow: 0 0 10px rgba(255, 42, 133, 0.8),
+               0 0 25px rgba(255, 42, 133, 0.5),
+               0 0 50px rgba(255, 42, 133, 0.3);
+}
+
+.glow-text-gold {
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
+               0 0 25px rgba(212, 175, 55, 0.5),
+               0 0 50px rgba(212, 175, 55, 0.3);
+}
+
+.metallic-gold-text {
+  background: linear-gradient(135deg, #fff7d6 0%, #ffd700 35%, #d4af37 60%, #fff7d6 85%, #b38728 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.metallic-rose-text {
+  background: linear-gradient(135deg, #ffffff 0%, #ffb3c1 30%, #ff2a85 60%, #ff758c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cosmic-gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #ff9ebb 25%, #ff2a85 50%, #bd00ff 75%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Cinematic Fog Overlay */
+.cinematic-fog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 42, 133, 0.08) 0%, rgba(138, 43, 226, 0.04) 40%, rgba(3, 1, 6, 0.95) 85%);
+  pointer-events: none;
+}
+
+/* ECG Heartbeat Line Animation */
+@keyframes ecgPulse {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ecg-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: ecgPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Shimmer Sweep */
+.shimmer-sweep {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmerSweep 3s infinite;
+}
+
+@keyframes shimmerSweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Smooth Perspective 3D */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
