@@ -19,6 +19,7 @@ import AnniversaryCalendar from '../components/AnniversaryCalendar';
 import MemoryGallery from '../components/MemoryGallery';
 import ReasonsSection from '../components/ReasonsSection';
 import FinalSurprise from '../components/FinalSurprise';
+import MusicPlayer from '../components/MusicPlayer';
 
 export default function Home({ onLock }) {
   const [activeSection, setActiveSection] = useState('home');
@@ -174,6 +175,9 @@ export default function Home({ onLock }) {
         isOpen={isLongLetterOpen}
         onClose={() => setIsLongLetterOpen(false)}
       />
+
+      {/* FLOATING ROMANTIC MUSIC PLAYER & SONG CHANGER */}
+      <MusicPlayer />
     </div>
   );
 }

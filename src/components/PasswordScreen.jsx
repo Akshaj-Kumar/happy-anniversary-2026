@@ -43,7 +43,7 @@ export default function PasswordScreen({ onUnlock }) {
       // Success!
       setIsSuccess(true);
       soundEngine.playBurst();
-      soundEngine.startRomanticAmbient();
+      soundEngine.playTrack(0);
 
       confetti({
         particleCount: 120,

@@ -40,7 +40,7 @@ export default function Navigation({ onNavigate, onLock, activeSection }) {
   const toggleSound = () => {
     soundEngine.playChime(1.1);
     if (!isPlaying) {
-      soundEngine.startRomanticAmbient();
+      soundEngine.playTrack(soundEngine.currentTrackIndex || 0);
     } else {
       soundEngine.toggleMute();
     }

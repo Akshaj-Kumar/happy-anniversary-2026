@@ -1,5 +1,28 @@
-// Cinematic Web Audio API Sound Engine & Custom Audio Manager
-// Provides 100% reliable synthesized romantic chords, heartbeats, chimes, and user audio uploads
+// Romantic Sound Engine & Multi-Track Music Player
+// Supports MP3 playback, track changing, Web Audio API synthesizer, and custom uploads
+
+export const romanticPlaylist = [
+  {
+    id: 'tum-mile',
+    title: 'Tum Mile ❤️ (Romantic Hindi Melody)',
+    subtitle: 'Soulful Love Anthem',
+    url: '/audio/tum-mile.mp3',
+    type: 'audio',
+  },
+  {
+    id: 'ordinary',
+    title: 'Ordinary / Extraordinary Love (Ballad)',
+    subtitle: 'Gentle Acoustic Romance',
+    url: '/audio/ordinary.mp3',
+    type: 'audio',
+  },
+  {
+    id: 'piano-synth',
+    title: "Can't Help Falling in Love (Dream Piano)",
+    subtitle: 'Synthesized Ambient Chords',
+    type: 'synth',
+  },
+];
 
 class RomanticAudioEngine {
   constructor() {
@@ -9,11 +32,12 @@ class RomanticAudioEngine {
     this.analyser = null;
     this.dataArray = null;
     this.isPlayingMusic = false;
-    this.volume = 0.65;
+    this.volume = 0.7;
     this.isMuted = false;
-    this.customAudio = null;
-    this.customSource = null;
-    this.trackName = 'Symphony of Forever';
+    this.audioElement = null;
+    this.audioSource = null;
+    this.currentTrackIndex = 0;
+    this.playlist = [...romanticPlaylist];
     this.onStateChangeCallbacks = new Set();
   }
 
@@ -49,8 +73,8 @@ class RomanticAudioEngine {
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
     }
-    if (this.customAudio) {
-      this.customAudio.volume = this.isMuted ? 0 : this.volume;
+    if (this.audioElement) {
+      this.audioElement.volume = this.isMuted ? 0 : this.volume;
     }
     this.notifyState();
   }
@@ -60,8 +84,8 @@ class RomanticAudioEngine {
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
     }
-    if (this.customAudio) {
-      this.customAudio.muted = this.isMuted;
+    if (this.audioElement) {
+      this.audioElement.muted = this.isMuted;
     }
     this.notifyState();
     return this.isMuted;
@@ -97,18 +121,15 @@ class RomanticAudioEngine {
       osc.stop(time + duration);
     };
 
-    // First thump "lub"
     playThump(now, 75, 0.14, 0.9);
-    // Second thump "dub"
     playThump(now + 0.17, 65, 0.18, 0.7);
   }
 
-  // Romantic Shimmer / Star Chime
   playChime(pitchMultiplier = 1.0) {
     this.resume();
     if (!this.ctx || this.isMuted) return;
 
-    const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51].map(f => f * pitchMultiplier);
+    const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51].map((f) => f * pitchMultiplier);
     const now = this.ctx.currentTime;
 
     freqs.forEach((freq, i) => {
@@ -131,12 +152,11 @@ class RomanticAudioEngine {
     });
   }
 
-  // Cinematic Whoosh
   playWhoosh() {
     this.resume();
     if (!this.ctx || this.isMuted) return;
 
-    const bufferSize = this.ctx.sampleRate * 0.45;
+    const bufferSize = this.ctx.sampleRate * 0.35;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
@@ -149,14 +169,13 @@ class RomanticAudioEngine {
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'bandpass';
     filter.frequency.setValueAtTime(300, this.ctx.currentTime);
-    filter.frequency.exponentialRampToValueAtTime(1400, this.ctx.currentTime + 0.25);
-    filter.frequency.exponentialRampToValueAtTime(250, this.ctx.currentTime + 0.45);
-    filter.Q.setValueAtTime(3.0, this.ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(1400, this.ctx.currentTime + 0.2);
+    filter.frequency.exponentialRampToValueAtTime(250, this.ctx.currentTime + 0.35);
 
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.25 * this.volume, this.ctx.currentTime + 0.18);
-    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.45);
+    gain.gain.linearRampToValueAtTime(0.2 * this.volume, this.ctx.currentTime + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.35);
 
     noise.connect(filter);
     filter.connect(gain);
@@ -165,27 +184,24 @@ class RomanticAudioEngine {
     noise.start();
   }
 
-  // Particle explosion / Heartburst sound
   playBurst() {
     this.playWhoosh();
     this.playChime(1.2);
     this.playHeartbeat(1.4);
   }
 
-  // Generative Romantic Piano & Ambient Chords
+  // Synthesizer ambient chords fallback
   startRomanticAmbient() {
     this.resume();
-    if (this.isPlayingMusic) return;
-    this.isPlayingMusic = true;
+    this.stopAudioElement();
+    if (this.synthInterval) return;
 
-    // Chord progressions in F Major / D Minor (Dreamy, Emotional)
-    // Fmaj7, Am7, Dm9, Bbmaj9, Csus4
     const chords = [
-      [174.61, 261.63, 329.63, 440.00, 523.25], // Fmaj7
-      [220.00, 261.63, 329.63, 392.00, 493.88], // Am7
-      [146.83, 220.00, 261.63, 329.63, 440.00], // Dm9
-      [116.54, 233.08, 293.66, 349.23, 440.00], // Bbmaj7
-      [130.81, 196.00, 261.63, 349.23, 392.00], // Csus4
+      [174.61, 261.63, 329.63, 440.0, 523.25], // Fmaj7
+      [220.0, 261.63, 329.63, 392.0, 493.88],  // Am7
+      [146.83, 220.0, 261.63, 329.63, 440.0],  // Dm9
+      [116.54, 233.08, 293.66, 349.23, 440.0], // Bbmaj7
+      [130.81, 196.0, 261.63, 349.23, 392.0],  // Csus4
     ];
 
     let chordIdx = 0;
@@ -201,28 +217,27 @@ class RomanticAudioEngine {
         const gain = this.ctx.createGain();
         const filter = this.ctx.createBiquadFilter();
 
-        // Warm analog-style filter
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(650 + Math.random() * 250, now);
+        filter.frequency.setValueAtTime(700, now);
 
-        osc.type = i === 0 ? 'sine' : (Math.random() > 0.4 ? 'triangle' : 'sine');
+        osc.type = i === 0 ? 'sine' : 'triangle';
         osc.frequency.setValueAtTime(freq, now);
 
-        // Staggered arpeggiated piano-like strike
-        const strikeTime = now + (i * 0.14) + (Math.random() * 0.05);
+        const strikeTime = now + i * 0.12;
         gain.gain.setValueAtTime(0.0001, strikeTime);
-        gain.gain.linearRampToValueAtTime((0.12 - i * 0.015) * this.volume, strikeTime + 0.12);
-        gain.gain.exponentialRampToValueAtTime(0.0001, strikeTime + 4.8);
+        gain.gain.linearRampToValueAtTime(0.1 * this.volume, strikeTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.0001, strikeTime + 4.5);
 
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(this.masterGain);
 
         osc.start(strikeTime);
-        osc.stop(strikeTime + 5.0);
+        osc.stop(strikeTime + 4.6);
       });
     };
 
+    this.isPlayingMusic = true;
     playChord();
     this.synthInterval = setInterval(playChord, 3800);
     this.notifyState();
@@ -233,60 +248,104 @@ class RomanticAudioEngine {
       clearInterval(this.synthInterval);
       this.synthInterval = null;
     }
-    this.isPlayingMusic = false;
+  }
+
+  stopAudioElement() {
+    if (this.audioElement) {
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
+    }
+  }
+
+  // Play a specific track from playlist by index
+  playTrack(index) {
+    this.resume();
+    if (index < 0 || index >= this.playlist.length) return;
+
+    this.currentTrackIndex = index;
+    const track = this.playlist[index];
+
+    if (track.type === 'synth') {
+      this.stopAudioElement();
+      this.startRomanticAmbient();
+    } else {
+      this.stopRomanticAmbient();
+      if (!this.audioElement) {
+        this.audioElement = new Audio();
+        this.audioElement.loop = true;
+      }
+
+      this.audioElement.src = track.url;
+      this.audioElement.volume = this.isMuted ? 0 : this.volume;
+
+      try {
+        if (!this.audioSource && this.ctx) {
+          this.audioSource = this.ctx.createMediaElementSource(this.audioElement);
+          this.audioSource.connect(this.masterGain);
+        }
+      } catch (e) {
+        // Source might already be connected
+      }
+
+      this.audioElement
+        .play()
+        .then(() => {
+          this.isPlayingMusic = true;
+          this.notifyState();
+        })
+        .catch((err) => {
+          console.warn('Audio play request failed or autoplay was blocked:', err);
+          // Fallback to ambient chords if audio file fails
+          this.startRomanticAmbient();
+        });
+    }
+
+    this.isPlayingMusic = true;
     this.notifyState();
   }
 
   toggleMusic() {
-    if (this.customAudio) {
-      if (this.customAudio.paused) {
-        this.resume();
-        this.customAudio.play();
-        this.isPlayingMusic = true;
-      } else {
-        this.customAudio.pause();
-        this.isPlayingMusic = false;
-      }
-      this.notifyState();
-      return this.isPlayingMusic;
-    }
-
     if (this.isPlayingMusic) {
-      this.stopRomanticAmbient();
+      this.pause();
     } else {
-      this.startRomanticAmbient();
+      this.playTrack(this.currentTrackIndex);
     }
     return this.isPlayingMusic;
   }
 
-  // Support for custom audio files (mp3, wav)
+  pause() {
+    this.isPlayingMusic = false;
+    this.stopRomanticAmbient();
+    if (this.audioElement) {
+      this.audioElement.pause();
+    }
+    this.notifyState();
+  }
+
+  nextTrack() {
+    const nextIdx = (this.currentTrackIndex + 1) % this.playlist.length;
+    this.playTrack(nextIdx);
+  }
+
+  prevTrack() {
+    const prevIdx = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
+    this.playTrack(prevIdx);
+  }
+
+  // Upload custom song
   loadCustomAudio(file) {
     this.resume();
-    if (this.customAudio) {
-      this.customAudio.pause();
-      this.customAudio = null;
-    }
-    this.stopRomanticAmbient();
-
     const objectUrl = URL.createObjectURL(file);
-    this.customAudio = new Audio(objectUrl);
-    this.customAudio.loop = true;
-    this.customAudio.volume = this.isMuted ? 0 : this.volume;
-    this.trackName = file.name.replace(/\.[^/.]+$/, '');
+    const newTrack = {
+      id: `custom-${Date.now()}`,
+      title: file.name.replace(/\.[^/.]+$/, ''),
+      subtitle: 'Your Uploaded Song 🎵',
+      url: objectUrl,
+      type: 'audio',
+    };
 
-    try {
-      this.customSource = this.ctx.createMediaElementSource(this.customAudio);
-      this.customSource.connect(this.masterGain);
-    } catch (e) {
-      console.warn('Could not connect media element source, fallback to normal audio playback', e);
-    }
-
-    this.customAudio.play().then(() => {
-      this.isPlayingMusic = true;
-      this.notifyState();
-    }).catch(err => {
-      console.warn('Audio play request failed or was interrupted:', err);
-    });
+    this.playlist.unshift(newTrack);
+    this.playTrack(0);
   }
 
   getFrequencyData() {
@@ -303,12 +362,17 @@ class RomanticAudioEngine {
   }
 
   notifyState() {
-    this.onStateChangeCallbacks.forEach(cb => cb({
-      isPlaying: this.isPlayingMusic,
-      isMuted: this.isMuted,
-      volume: this.volume,
-      trackName: this.trackName,
-    }));
+    const curTrack = this.playlist[this.currentTrackIndex] || this.playlist[0];
+    this.onStateChangeCallbacks.forEach((cb) =>
+      cb({
+        isPlaying: this.isPlayingMusic,
+        isMuted: this.isMuted,
+        volume: this.volume,
+        currentTrackIndex: this.currentTrackIndex,
+        currentTrack: curTrack,
+        playlist: this.playlist,
+      })
+    );
   }
 }
 

@@ -5,33 +5,37 @@ import {
   VolumeX,
   Play,
   Pause,
+  SkipForward,
+  SkipBack,
   Upload,
   Heart,
   Music,
-  Sliders,
-  Sparkles,
+  ListMusic,
+  ChevronDown,
+  X,
 } from 'lucide-react';
 import soundEngine from '../utils/audioEngine';
 
 export default function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.65);
-  const [trackName, setTrackName] = useState('Symphony of Forever');
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [freqBars, setFreqBars] = useState([30, 60, 45, 80, 50, 70, 40]);
+  const [volume, setVolume] = useState(0.7);
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [playlist, setPlaylist] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [freqBars, setFreqBars] = useState([30, 65, 45, 80, 50, 70, 40]);
   const fileInputRef = useRef(null);
 
-  // Sync state with soundEngine
   useEffect(() => {
     const unsubscribe = soundEngine.subscribe((state) => {
       setIsPlaying(state.isPlaying);
       setIsMuted(state.isMuted);
       setVolume(state.volume);
-      setTrackName(state.trackName);
+      setCurrentTrack(state.currentTrack);
+      setPlaylist(state.playlist);
     });
 
-    // Animate visualizer frequency bars
+    // Animate equalizer bars
     let animId;
     const updateVisualizer = () => {
       if (soundEngine.isPlayingMusic && !soundEngine.isMuted) {
@@ -45,13 +49,13 @@ export default function MusicPlayer() {
           setFreqBars(bars);
         } else {
           setFreqBars([
-            Math.random() * 60 + 20,
+            Math.random() * 60 + 25,
             Math.random() * 80 + 20,
-            Math.random() * 50 + 20,
-            Math.random() * 90 + 20,
+            Math.random() * 50 + 25,
+            Math.random() * 90 + 15,
             Math.random() * 70 + 20,
-            Math.random() * 80 + 20,
-            Math.random() * 40 + 20,
+            Math.random() * 85 + 15,
+            Math.random() * 45 + 25,
           ]);
         }
       } else {
@@ -73,6 +77,22 @@ export default function MusicPlayer() {
     soundEngine.toggleMusic();
   };
 
+  const handleNext = () => {
+    soundEngine.playChime(1.2);
+    soundEngine.nextTrack();
+  };
+
+  const handlePrev = () => {
+    soundEngine.playChime(1.0);
+    soundEngine.prevTrack();
+  };
+
+  const handleSelectTrack = (index) => {
+    soundEngine.playChime(1.2);
+    soundEngine.playTrack(index);
+    setIsMenuOpen(false);
+  };
+
   const handleToggleMute = () => {
     soundEngine.toggleMute();
   };
@@ -86,55 +106,101 @@ export default function MusicPlayer() {
     const file = e.target.files[0];
     if (file) {
       soundEngine.loadCustomAudio(file);
+      setIsMenuOpen(false);
     }
   };
 
-  const handleHeartbeatClick = () => {
-    soundEngine.playHeartbeat(1.2);
-  };
+  const trackTitle = currentTrack?.title || 'Tum Mile ❤️ (Romantic Hindi Melody)';
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end select-none">
-      {/* Expanded Audio Settings Panel */}
+    <div className="fixed bottom-4 right-4 z-40 select-none flex flex-col items-end">
+      {/* Expanded Playlist / Track Changer Menu */}
       <AnimatePresence>
-        {isExpanded && (
+        {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="mb-3 p-5 rounded-3xl glass-panel border border-rose-neon/40 shadow-neon-pink w-72 text-left"
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            className="mb-3 w-80 sm:w-88 bg-[#FFFBF5] rounded-3xl p-5 shadow-2xl border-2 border-romantic-red/30 text-left"
           >
-            {/* Title & Track */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-              <span className="text-[11px] font-outfit uppercase tracking-widest text-gold-shimmer font-semibold flex items-center gap-1.5">
-                <Music className="w-3.5 h-3.5 text-rose-neon" />
-                Sound Studio
-              </span>
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-romantic-red/15 mb-3">
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4 text-romantic-red" />
+                <span className="font-poppins font-bold text-xs uppercase tracking-wider text-romantic-red">
+                  Change Romantic Song
+                </span>
+              </div>
               <button
-                onClick={handleHeartbeatClick}
-                className="px-2.5 py-1 rounded-full bg-rose-neon/20 hover:bg-rose-neon/40 text-[10px] text-rose-blush font-outfit uppercase tracking-wider flex items-center gap-1 transition-colors"
-                title="Play heartbeat thump"
+                onClick={() => setIsMenuOpen(false)}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-romantic-red"
               >
-                <Heart className="w-3 h-3 text-rose-neon fill-rose-neon" /> Lub-Dub
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Currently Playing Track */}
-            <p className="text-xs font-inter font-medium text-white truncate mb-1">
-              {trackName}
-            </p>
-            <p className="text-[10px] text-gray-400 font-inter mb-4">
-              {trackName === 'Symphony of Forever'
-                ? 'Synthesized Ambient Piano & Chords'
-                : 'Custom Audio Track'}
-            </p>
+            {/* Song List */}
+            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              {playlist.map((track, idx) => {
+                const isCurrent = currentTrack?.id === track.id;
+                return (
+                  <button
+                    key={track.id}
+                    onClick={() => handleSelectTrack(idx)}
+                    className={`w-full p-2.5 rounded-2xl flex items-center justify-between text-left transition-all duration-200 cursor-pointer ${
+                      isCurrent
+                        ? 'bg-romantic-red text-white shadow-sm font-semibold'
+                        : 'hover:bg-romantic-red/10 text-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 truncate mr-2">
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                        {isCurrent && isPlaying ? (
+                          <Heart className="w-3.5 h-3.5 fill-current animate-pulse" />
+                        ) : (
+                          <Music className="w-3.5 h-3.5" />
+                        )}
+                      </div>
+                      <div className="truncate">
+                        <p className="text-xs truncate">{track.title}</p>
+                        <p className={`text-[10px] ${isCurrent ? 'text-white/80' : 'text-gray-500'}`}>
+                          {track.subtitle}
+                        </p>
+                      </div>
+                    </div>
+                    {isCurrent && (
+                      <span className="text-[10px] uppercase font-poppins tracking-wider shrink-0 px-2 py-0.5 rounded-full bg-white/20">
+                        Playing
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Volume Slider */}
-            <div className="space-y-1.5 mb-4">
-              <div className="flex items-center justify-between text-[11px] text-gray-300 font-inter">
-                <span>Volume</span>
-                <span>{Math.round(volume * 100)}%</span>
-              </div>
+            {/* Upload Custom Song Button */}
+            <div className="mt-3 pt-3 border-t border-romantic-red/15">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <button
+                onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                className="w-full py-2.5 px-3 rounded-2xl bg-white border border-romantic-red/30 hover:border-romantic-red hover:bg-romantic-red/5 text-xs font-poppins font-medium text-romantic-red flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload Your Own Song (.mp3) 🎵</span>
+              </button>
+            </div>
+
+            {/* Volume Control */}
+            <div className="mt-3 pt-2 flex items-center gap-2.5 text-xs font-poppins text-gray-600">
+              <button onClick={handleToggleMute} className="text-romantic-red">
+                {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </button>
               <input
                 type="range"
                 min="0"
@@ -142,73 +208,75 @@ export default function MusicPlayer() {
                 step="0.01"
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
-                className="w-full accent-rose-neon cursor-pointer h-1.5 bg-black/60 rounded-lg"
+                className="w-full accent-romantic-red cursor-pointer h-1.5 bg-gray-200 rounded-lg"
               />
+              <span className="text-[11px] w-8 text-right font-medium">
+                {Math.round(volume * 100)}%
+              </span>
             </div>
-
-            {/* Upload Custom Music */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="audio/*"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-            <button
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
-              className="w-full py-2.5 px-3 rounded-xl bg-black/50 hover:bg-rose-neon/20 border border-white/15 text-xs font-outfit uppercase tracking-wider text-gray-200 flex items-center justify-center gap-2 transition-all hover:border-gold-shimmer/60"
-            >
-              <Upload className="w-3.5 h-3.5 text-gold-shimmer" />
-              <span>Upload Custom Song 🎵</span>
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating Compact Dock */}
-      <div className="flex items-center gap-2 p-2 rounded-full glass-panel border border-rose-neon/30 shadow-neon-pink backdrop-blur-xl">
-        {/* Equalizer Waveform Bars */}
+      {/* Floating Compact Player Dock */}
+      <div className="flex items-center gap-2 p-1.5 sm:p-2 rounded-full bg-[#FFFBF5] border-2 border-romantic-red/30 shadow-2xl backdrop-blur-md">
+        {/* Equalizer Frequency Bars */}
         <div
           onClick={handleTogglePlay}
-          className="flex items-end gap-1 px-2.5 h-6 cursor-pointer"
+          className="flex items-end gap-1 px-2 h-6 cursor-pointer"
           title={isPlaying ? 'Pause Music' : 'Play Music'}
         >
           {freqBars.map((h, i) => (
             <span
               key={i}
               style={{ height: `${h}%` }}
-              className="w-1 bg-gradient-to-t from-rose-neon to-gold-shimmer rounded-full transition-all duration-100"
+              className="w-1 bg-romantic-red rounded-full transition-all duration-100"
             />
           ))}
         </div>
 
-        {/* Play / Pause Button */}
+        {/* Previous Track Button */}
+        <button
+          onClick={handlePrev}
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white hover:bg-romantic-red/10 text-romantic-red flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+          title="Previous Song"
+        >
+          <SkipBack className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Play / Pause Main Button */}
         <button
           onClick={handleTogglePlay}
-          className="w-9 h-9 rounded-full bg-gradient-to-r from-rose-neon to-rose-crimson text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-md"
-          title={isPlaying ? 'Pause Symphony' : 'Play Romantic Symphony'}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-romantic-red text-white flex items-center justify-center hover:bg-romantic-red-dark transition-transform active:scale-95 shadow-md cursor-pointer"
+          title={isPlaying ? 'Pause Music' : 'Play Romantic Music'}
         >
           {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white ml-0.5" />}
         </button>
 
-        {/* Mute / Unmute Button */}
+        {/* Next Track Button */}
         <button
-          onClick={handleToggleMute}
-          className="w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-gray-300 hover:text-white flex items-center justify-center transition-colors border border-white/10"
-          title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+          onClick={handleNext}
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white hover:bg-romantic-red/10 text-romantic-red flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+          title="Next Song"
         >
-          {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-rose-blush" />}
+          <SkipForward className="w-3.5 h-3.5" />
         </button>
 
-        {/* Settings Expander */}
+        {/* Song Title Pill & Track Changer Toggle */}
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={`w-9 h-9 rounded-full text-gray-300 flex items-center justify-center transition-colors border border-white/10 ${
-            isExpanded ? 'bg-gold-shimmer text-black' : 'bg-black/60 hover:bg-black/80'
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-poppins transition-colors cursor-pointer max-w-[130px] sm:max-w-[210px] ${
+            isMenuOpen
+              ? 'bg-romantic-red text-white'
+              : 'bg-white hover:bg-romantic-red/10 text-romantic-red border border-romantic-red/20'
           }`}
-          title="Audio Settings"
+          title="Click to change song or choose from playlist"
         >
-          <Sliders className="w-4 h-4" />
+          <Music className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate font-medium text-[11px] sm:text-xs">
+            {trackTitle}
+          </span>
+          <ListMusic className="w-3.5 h-3.5 shrink-0 ml-1" />
         </button>
       </div>
     </div>
